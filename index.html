@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dravid — Data Science &amp; Python</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#05070d;
+    --panel:#0b1120;
+    --panel-2:#0f1830;
+    --cyan:#35e7ff;
+    --magenta:#c66bff;
+    --text:#dce8ff;
+    --muted:#7387ad;
+    --line:rgba(53,231,255,.22);
+    --mono:'JetBrains Mono', monospace;
+    --display:'Space Grotesk', sans-serif;
+    --body:'IBM Plex Sans', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  a{color:inherit;}
+
+  /* circuit background */
+  .grid-bg{
+    position:fixed; inset:0; z-index:-2;
+    background-image:
+      linear-gradient(rgba(53,231,255,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(53,231,255,.05) 1px, transparent 1px);
+    background-size:42px 42px;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 20%, black 40%, transparent 90%);
+  }
+  .glow-orb{
+    position:fixed; z-index:-1; border-radius:50%;
+    filter:blur(90px); opacity:.28; pointer-events:none;
+  }
+  .glow-1{ width:420px; height:420px; top:-100px; left:-100px; background:var(--cyan); }
+  .glow-2{ width:380px; height:380px; bottom:0; right:-80px; background:var(--magenta); }
+
+  /* nav */
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 6vw;
+    background:rgba(5,7,13,.75);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    font-family:var(--display); font-weight:700; font-size:20px;
+    color:var(--text); letter-spacing:1px; text-transform:uppercase;
+  }
+  .logo span{color:var(--cyan);}
+  .nav-links{ display:flex; gap:28px; list-style:none; margin:0; padding:0; }
+  .nav-links a{
+    font-family:var(--mono); font-size:13px; text-decoration:none;
+    color:var(--muted); text-transform:lowercase; letter-spacing:.3px;
+    transition:color .2s;
+  }
+  .nav-links a:hover, .nav-links a:focus-visible{ color:var(--cyan); }
+
+  section{ padding:110px 6vw; max-width:1180px; margin:0 auto; }
+
+  /* hero */
+  .hero{
+    padding-top:80px;
+    display:grid; grid-template-columns:1.1fr .9fr; gap:60px; align-items:center;
+    min-height:88vh;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:13px; color:var(--cyan);
+    display:flex; align-items:center; gap:10px; margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:''; width:8px; height:8px; border-radius:50%;
+    background:var(--cyan); box-shadow:0 0 10px var(--cyan);
+    animation:pulse 1.6s infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+  h1{
+    font-family:var(--display); font-weight:700;
+    font-size:clamp(2.4rem, 5vw, 4.2rem);
+    line-height:1.05; margin:0 0 20px;
+  }
+  h1 .accent{
+    background:linear-gradient(100deg, var(--cyan), var(--magenta));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero-sub{ font-size:18px; color:var(--muted); max-width:46ch; margin-bottom:32px; }
+  .btn-row{ display:flex; gap:16px; flex-wrap:wrap; }
+  .btn{
+    font-family:var(--mono); font-size:14px; padding:13px 26px;
+    border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+    border:1px solid var(--line); transition:transform .15s, border-color .15s, background .15s;
+  }
+  .btn-primary{ background:var(--cyan); color:#04121a; font-weight:700; border-color:var(--cyan); }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 0 24px rgba(53,231,255,.4); }
+  .btn-ghost{ color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--cyan); color:var(--cyan); transform:translateY(-2px); }
+
+  /* terminal */
+  .terminal{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:8px; padding:12px 16px;
+    background:var(--panel-2); border-bottom:1px solid var(--line);
+  }
+  .term-dot{ width:10px; height:10px; border-radius:50%; }
+  .term-body{
+    font-family:var(--mono); font-size:13.5px; padding:22px 20px;
+    min-height:230px; color:#a9f0ff;
+  }
+  .term-body .muted{ color:var(--muted); }
+  .term-body .out{ color:var(--text); }
+  .cursor{
+    display:inline-block; width:8px; height:15px; background:var(--cyan);
+    vertical-align:middle; animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  /* section headers */
+  .sec-eyebrow{ font-family:var(--display); font-weight:700; color:var(--magenta); font-size:14px; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+  h2{ font-family:var(--display); font-size:clamp(1.8rem,3vw,2.5rem); margin:0 0 40px; }
+
+  /* about */
+  .about-grid{ display:grid; grid-template-columns:1fr 1fr; gap:50px; align-items:start; }
+  .about-grid p{ color:var(--muted); font-size:16px; margin-bottom:16px; }
+  .info-list{ list-style:none; margin:0; padding:0; font-family:var(--mono); font-size:14px; }
+  .info-list li{
+    display:flex; justify-content:space-between; padding:12px 0;
+    border-bottom:1px solid var(--line); color:var(--text);
+  }
+  .info-list li span:first-child{ color:var(--muted); }
+
+  /* skills */
+  .skills-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px; }
+  .skill{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px 20px; }
+  .skill-top{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:13px; margin-bottom:10px; }
+  .skill-top .lvl{ color:var(--cyan); }
+  .bars{ display:flex; gap:5px; }
+  .bar{ height:7px; flex:1; border-radius:2px; background:rgba(115,135,173,.25); }
+  .bar.on{ background:linear-gradient(90deg, var(--cyan), var(--magenta)); }
+
+  /* certifications */
+  .cert-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; }
+  .cert-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:22px; transition:transform .2s, border-color .2s;
+  }
+  .cert-card:hover{ transform:translateY(-4px); border-color:var(--cyan); }
+  .cert-badge{
+    width:42px; height:42px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    font-family:var(--display); font-weight:700; font-size:15px; margin-bottom:16px;
+  }
+  .badge-google{ background:rgba(53,231,255,.12); color:var(--cyan); }
+  .badge-oracle{ background:rgba(198,107,255,.14); color:var(--magenta); }
+  .badge-ibm{ background:rgba(255,255,255,.08); color:var(--text); }
+  .cert-card h3{ font-family:var(--body); font-size:16px; font-weight:600; margin:0 0 6px; }
+  .cert-card .issuer{ font-family:var(--mono); font-size:12px; color:var(--muted); }
+
+  /* projects */
+  .proj-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; }
+  .proj-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:24px;
+    position:relative; overflow:hidden;
+  }
+  .proj-card::before{
+    content:''; position:absolute; top:0; left:0; width:100%; height:3px;
+    background:linear-gradient(90deg, var(--cyan), var(--magenta));
+  }
+  .proj-tag{
+    font-family:var(--mono); font-size:11px; color:var(--muted);
+    border:1px solid var(--line); border-radius:20px; padding:3px 10px; display:inline-block; margin-bottom:14px;
+  }
+  .proj-card h3{ font-family:var(--body); font-size:17px; margin:0 0 10px; }
+  .proj-card p{ color:var(--muted); font-size:14px; margin:0 0 16px; }
+  .proj-edit{ font-family:var(--mono); font-size:12px; color:var(--cyan); text-decoration:none; }
+
+  /* contact */
+  .contact-term{ max-width:640px; margin:0 auto; text-align:center; }
+  .contact-term .term-body{ text-align:left; }
+  .mail-btn{
+    font-family:var(--mono); font-size:15px; padding:16px 32px; margin-top:24px;
+    background:linear-gradient(100deg, var(--cyan), var(--magenta)); color:#04121a; font-weight:700;
+    border-radius:8px; text-decoration:none; display:inline-flex; align-items:center; gap:10px;
+    transition:transform .15s;
+  }
+  .mail-btn:hover{ transform:translateY(-3px); }
+  .mail-fallback{ margin-top:14px; font-family:var(--mono); font-size:13px; color:var(--muted); }
+  .mail-fallback a{ color:var(--cyan); text-decoration:none; }
+
+  footer{
+    text-align:center; padding:30px 6vw; font-family:var(--mono); font-size:12px; color:var(--muted);
+    border-top:1px solid var(--line);
+  }
+
+  @media (max-width: 860px){
+    .hero{ grid-template-columns:1fr; padding-top:40px; min-height:auto; }
+    .about-grid{ grid-template-columns:1fr; }
+    section{ padding:70px 6vw; }
+  }
+
+  :focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition:none !important; }
+    html{ scroll-behavior:auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-orb glow-1"></div>
+<div class="glow-orb glow-2"></div>
+
+<nav>
+  <div class="logo">DRA<span>VID</span></div>
+  <ul class="nav-links">
+    <li><a href="#about">about</a></li>
+    <li><a href="#skills">skills</a></li>
+    <li><a href="#certs">certs</a></li>
+    <li><a href="#projects">projects</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="eyebrow">available for data science &amp; python roles</div>
+    <h1>Turning data<br>into <span class="accent">decisions</span>.</h1>
+    <p class="hero-sub">I'm Dravid, a B.Tech AI &amp; Data Science student at JNN Institute of Engineering, building with Python and exploring how data tells a story.</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="#projects">View work</a>
+      <a class="btn btn-ghost" href="#contact">Get in touch</a>
+    </div>
+  </div>
+  <div class="terminal" role="img" aria-label="Terminal window showing a script printing Dravid's profile summary">
+    <div class="term-bar">
+      <div class="term-dot" style="background:#ff5f57"></div>
+      <div class="term-dot" style="background:#febc2e"></div>
+      <div class="term-dot" style="background:#28c840"></div>
+      <span style="margin-left:10px;font-family:var(--mono);font-size:12px;color:var(--muted)">profile.py</span>
+    </div>
+    <div class="term-body" id="termBody"></div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="sec-eyebrow">About</div>
+  <h2>Student, builder, data enthusiast.</h2>
+  <div class="about-grid">
+    <div>
+      <p>I'm currently pursuing my B.Tech in Artificial Intelligence &amp; Data Science at JNN Institute of Engineering. My focus is on Python and data science — from cleaning messy datasets to finding the patterns hiding inside them.</p>
+      <p>I've backed that interest with five professional certifications from Google, Oracle, and IBM, covering everything from data analytics to cloud fundamentals. Right now I'm looking to apply what I've learned to real projects and internships.</p>
+    </div>
+    <ul class="info-list">
+      <li><span>Course</span><span>B.Tech, AI &amp; Data Science</span></li>
+      <li><span>Institute</span><span>JNN Institute of Engineering</span></li>
+      <li><span>Focus areas</span><span>Python, Data Science</span></li>
+      <li><span>Certifications</span><span>5 (Google, Oracle, IBM)</span></li>
+      <li><span>Status</span><span style="color:var(--cyan)">Open to opportunities</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="sec-eyebrow">Skills</div>
+  <h2>What I work with.</h2>
+  <div class="skills-grid" id="skillsGrid"></div>
+</section>
+
+<section id="certs">
+  <div class="sec-eyebrow">Certifications</div>
+  <h2>Credentials earned so far.</h2>
+  <div class="cert-grid" id="certGrid"></div>
+</section>
+
+<section id="projects">
+  <div class="sec-eyebrow">Projects</div>
+  <h2>Things I've been building.</h2>
+  <div class="proj-grid" id="projGrid"></div>
+</section>
+
+<section id="contact">
+  <div class="sec-eyebrow" style="text-align:center">Contact</div>
+  <h2 style="text-align:center">Let's talk data.</h2>
+  <div class="contact-term">
+    <div class="terminal">
+      <div class="term-bar">
+        <div class="term-dot" style="background:#ff5f57"></div>
+        <div class="term-dot" style="background:#febc2e"></div>
+        <div class="term-dot" style="background:#28c840"></div>
+        <span style="margin-left:10px;font-family:var(--mono);font-size:12px;color:var(--muted)">contact.sh</span>
+      </div>
+      <div class="term-body">
+        <span class="muted">$</span> ./reach_dravid --channel email<br><br>
+        <span class="out">Ready to connect about data science, Python projects,<br>or opportunities. Tap below to open Gmail.</span>
+      </div>
+    </div>
+    <a class="mail-btn" href="https://mail.google.com/mail/?view=cm&fs=1&to=dravidboss655@gmail.com&su=Portfolio%20Contact" target="_blank" rel="noopener noreferrer">
+      Email me on Gmail →
+    </a>
+    <div class="mail-fallback">or write directly to <a href="mailto:dravidboss655@gmail.com">dravidboss655@gmail.com</a></div>
+  </div>
+</section>
+
+<footer>
+  built by Dravid — JNN Institute of Engineering — © <span id="year"></span>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* terminal typing sequence */
+const lines = [
+  { text: "$ whoami", cls: "muted", pause: 400 },
+  { text: "> Dravid — B.Tech AI & Data Science student", cls: "out", pause: 300 },
+  { text: "$ status --check", cls: "muted", pause: 400 },
+  { text: "> 5 certifications loaded [Google, Oracle, IBM]", cls: "out", pause: 300 },
+  { text: "> skills: Python, Data Science, ML basics", cls: "out", pause: 300 },
+  { text: "$ availability", cls: "muted", pause: 400 },
+  { text: "> open to internships & data roles", cls: "out", pause: 0 }
+];
+
+const termBody = document.getElementById('termBody');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function renderStatic(){
+  termBody.innerHTML = lines.map(l => `<div class="${l.cls}">${l.text}</div>`).join('');
+}
+
+function typeSequence(){
+  let li = 0;
+  function nextLine(){
+    if(li >= lines.length){
+      termBody.innerHTML += '<span class="cursor"></span>';
+      return;
+    }
+    const line = lines[li];
+    const div = document.createElement('div');
+    div.className = line.cls;
+    termBody.appendChild(div);
+    let ci = 0;
+    function typeChar(){
+      if(ci <= line.text.length){
+        div.textContent = line.text.slice(0, ci);
+        ci++;
+        setTimeout(typeChar, 18);
+      } else {
+        li++;
+        setTimeout(nextLine, line.pause);
+      }
+    }
+    typeChar();
+  }
+  nextLine();
+}
+
+if(reduceMotion){ renderStatic(); } else { typeSequence(); }
+
+/* skills */
+const skills = [
+  { name: "Python", level: 4 },
+  { name: "Data Science", level: 4 },
+  { name: "SQL", level: 3 },
+  { name: "Machine Learning basics", level: 3 },
+  { name: "Data Analytics", level: 4 },
+  { name: "Cloud Fundamentals (Oracle)", level: 3 }
+];
+document.getElementById('skillsGrid').innerHTML = skills.map(s => `
+  <div class="skill">
+    <div class="skill-top"><span>${s.name}</span><span class="lvl">${s.level}/5</span></div>
+    <div class="bars">
+      ${[1,2,3,4,5].map(i => `<div class="bar ${i <= s.level ? 'on' : ''}"></div>`).join('')}
+    </div>
+  </div>
+`).join('');
+
+/* certifications */
+const certs = [
+  { badge: "G", cls: "badge-google", name: "Google Data Analytics Professional Certificate", issuer: "Google · Coursera" },
+  { badge: "G", cls: "badge-google", name: "Google IT Automation with Python", issuer: "Google · Coursera" },
+  { badge: "O", cls: "badge-oracle", name: "Oracle Cloud Infrastructure Foundations Associate", issuer: "Oracle University" },
+  { badge: "IBM", cls: "badge-ibm", name: "IBM Data Science Professional Certificate", issuer: "IBM · Coursera" },
+  { badge: "IBM", cls: "badge-ibm", name: "IBM Python for Data Science, AI & Development", issuer: "IBM · Coursera" }
+];
+document.getElementById('certGrid').innerHTML = certs.map(c => `
+  <div class="cert-card">
+    <div class="cert-badge ${c.cls}">${c.badge}</div>
+    <h3>${c.name}</h3>
+    <div class="issuer">${c.issuer}</div>
+  </div>
+`).join('');
+document.querySelector('#certs h2').insertAdjacentHTML('afterend', '<p style="font-family:var(--mono);font-size:12px;color:var(--muted);margin:-24px 0 32px;">edit certificate names in the script to match your exact credentials</p>');
+
+/* projects placeholders */
+const projects = [
+  { tag: "placeholder", title: "Project name here", desc: "Swap in a real project: what it does, the problem it solves, and the outcome." },
+  { tag: "placeholder", title: "Project name here", desc: "Swap in a real project: what it does, the problem it solves, and the outcome." },
+  { tag: "placeholder", title: "Project name here", desc: "Swap in a real project: what it does, the problem it solves, and the outcome." }
+];
+document.getElementById('projGrid').innerHTML = projects.map(p => `
+  <div class="proj-card">
+    <span class="proj-tag">${p.tag}</span>
+    <h3>${p.title}</h3>
+    <p>${p.desc}</p>
+    <span class="proj-edit">// edit this card in the HTML</span>
+  </div>
+`).join('');
+</script>
+
+</body>
+</html>
